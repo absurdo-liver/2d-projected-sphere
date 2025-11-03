@@ -9,6 +9,8 @@ var currentWidth = window.innerWidth;
 var currentHeight = window.innerHeight;
 var currentOrigin = [currentWidth / 2, currentHeight / 2];
 var funToCall = [];
+var sphereRadius = 2;
+var enableDrawGizmo = true;
 
 // variables to track rotation & mouse interaction
 let rotationX = 0;
@@ -18,7 +20,7 @@ let previousMousePosition = {
 	x: 0,
 	y: 0
 };
-let sphereRadius = 1; 
+
 
 window.addEventListener('contextmenu', function(event) {
 	event.preventDefault();
@@ -162,8 +164,9 @@ function callMyFunction(p, color) {
 callMyFunction([0,Math.PI], 'black');
 
 function drawGizmo(originX, originY) {
+  if(!enableDrawGizmo) return
     const axisLength = 1.0;
-    const gizmoScale = 30;
+    const gizmoScale = sphereRadius*25;
 
     const axes = {
         x: { point: { x: axisLength, y: 0, z: 0 }, color: 'red' },
@@ -244,8 +247,8 @@ function renderCanvas() {
 
 	callerFunction();
 
-  const gizmoCanvasX = currentWidth - 100; 
-  const gizmoCanvasY = 100;
+  const gizmoCanvasX = originX; 
+  const gizmoCanvasY = originY;
   drawGizmo(gizmoCanvasX, gizmoCanvasY); 
 
 	requestAnimationFrame(renderCanvas);
