@@ -11,6 +11,7 @@ var currentOrigin = [currentWidth / 2, currentHeight / 2];
 var funToCall = [];
 var sphereRadius = 2;
 var enableDrawGizmo = true;
+var initialPinchDistance = null; // handle zoom on mobile
 
 // variables to track rotation & mouse interaction
 let rotationX = 0;
@@ -27,7 +28,7 @@ window.addEventListener('contextmenu', function(event) {
 	console.log("prevented context menu !");
 });
 
-
+// --- DESKTOP MOUSE EVENTS ---
 canvas.addEventListener('mousedown', (e) => {
 	isDragging = true;
 	previousMousePosition = {
@@ -67,6 +68,65 @@ canvas.addEventListener('wheel', (e) => {
     sphereRadius = Math.max(0.2, sphereRadius); 
     sphereRadius = Math.min(5.0, sphereRadius); 
 });
+
+// --- MOBILE TOUCH EVENTS ---
+canvas.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+        // Single touch for rotation
+        isDragging = true;
+        previousMousePosition = {
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY
+        };
+    } else if (e.touches.length === 2) {
+        // Two touches for pinch zoom
+        isDragging = false; // Stop rotation while pinching
+        initialPinchDistance = getPinchDistance(e.touches);
+    }
+    e.preventDefault(); // Prevent default mobile scrolling/zooming behavior
+});
+
+window.addEventListener('touchend', (e) => {
+    isDragging = false;
+    initialPinchDistance = null;
+});
+
+canvas.addEventListener('touchmove', (e) => {
+    if (isDragging && e.touches.length === 1) {
+        // Single touch rotation
+        const deltaX = e.touches[0].clientX - previousMousePosition.x;
+        const deltaY = e.touches[0].clientY - previousMousePosition.y;
+
+        rotationY -= deltaX * 0.005;
+        rotationX -= deltaY * 0.005;
+
+        previousMousePosition = {
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY
+        };
+    } else if (initialPinchDistance !== null && e.touches.length === 2) {
+        // Pinch zoom
+        const currentPinchDistance = getPinchDistance(e.touches);
+        const deltaDistance = currentPinchDistance - initialPinchDistance;
+
+        // Adjust sphereRadius based on pinch direction
+        // A larger delta means zooming in
+        if (Math.abs(deltaDistance) > 5) { // Threshold for movement
+            sphereRadius += deltaDistance * 0.005; 
+            sphereRadius = Math.max(0.2, sphereRadius); 
+            sphereRadius = Math.min(5.0, sphereRadius); 
+
+            initialPinchDistance = currentPinchDistance; // Update initial distance for smooth zoom
+        }
+    }
+});
+
+// Helper function to calculate distance between two touches for pinch zoom
+function getPinchDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+}
 
 
 function callerFunction() {
