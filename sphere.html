@@ -313,15 +313,6 @@
                 }
             }
 
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(0, originY); // X-axis
-            ctx.lineTo(currentWidth, originY);
-            ctx.moveTo(originX, 0); // Y-axis
-            ctx.lineTo(originX, currentHeight);
-            ctx.stroke();
-
             callerFunction();
 
         const gizmoCanvasX = originX; 
